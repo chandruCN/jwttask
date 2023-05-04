@@ -46,10 +46,6 @@ app.use(express.json());
 //routes
 app.use("/api/user/", authRoutes);
 
-app.get("/", function (req, res) {
-  res.sendFile(path.join(__dirname, "./index.html"));
-});
-
 app.post("/authenticate", async (req, res) => {
   try {
     const existingUser = await userschem.findOne({ email: req.body.username }); //await like promises
@@ -73,10 +69,20 @@ app.post("/authenticate", async (req, res) => {
     res.send(error);
   }
 });
+app.get("/", function (req, res) {
+  const token = req.cookies;
+  if (!token.jwt) {
+    res.sendFile(path.join(__dirname, "./index.html"));
+  } else {
+    res.sendFile(path.join(__dirname, "./dashboard.html"));
+  }
+});
+
 app.get("/dashboard", function (req, res) {
   const token = req.cookies;
   if (!token.jwt) {
     res.sendFile(path.join(__dirname, "./index.html"));
+    return res.redirect("/");
   } else {
     res.sendFile(path.join(__dirname, "./dashboard.html"));
   }
